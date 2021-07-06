@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "header.h"
+
 #define MAIN_DIR_PATH "/sys/devices/w1_bus_master1/"
 #define TEMP_FILE "/w1_slave"
 
@@ -70,7 +72,7 @@ char** GetAllSensorsName(DIR* dir, struct dirent* dirEntry)
     //when to free allSensors
 }
 
-//funkcja nic nie zwraca, edytuje wejściową tablicę, nadpusjąc NULL-em niepodpięte czujki
+
 char** GetPluggedSensorsName(char** allSensors)
 {
     FILE* fd;
@@ -150,7 +152,7 @@ char** GetPluggedSensorsName(char** allSensors)
 
 
 
-void TempReader(char** pluggedSensors)
+char** TempReader(char** pluggedSensors) //generates strings with temp and name and return pointer to it
 {
     FILE* fd;
     char* buffer;
@@ -160,6 +162,15 @@ void TempReader(char** pluggedSensors)
     long fileSize;
     float temperature;
     float tempArray[pluggedSensorsAmountGlobal];
+    char tempString[6];
+
+    char* singleOutput = calloc(64, sizeof(char));
+
+    char** dataOutput = (char **)malloc(pluggedSensorsAmountGlobal * sizeof(char *));
+    for (int i = 0; i < pluggedSensorsAmountGlobal; i++)
+        dataOutput[i] = (char *)malloc(64 * sizeof(char));
+
+    memset(dataOutput, 0, sizeof(dataOutput));
 
     for (int i = 0; i < pluggedSensorsAmountGlobal; i++)
     {
@@ -196,24 +207,36 @@ void TempReader(char** pluggedSensors)
         temperature = temperature / 1000;
 
         tempArray[i] = temperature;
-        printf("%s = %f\n", pluggedSensors[i], tempArray[i]);
+//        printf("%s = %f.2\n", pluggedSensors[i], tempArray[i]);
         
         free(buffer);
         free(path);
         
+
         fclose(fd);
+// Creating output, array 
+        
+        
+        gcvt(tempArray[i], 5, tempString);  //converts float to string;
+        strncat(singleOutput, pluggedSensors[i], strlen(pluggedSensors[i])); 
+        printf("%s\n", singleOutput);
+        strncat(singleOutput, " : ", strlen(" : "));
+        printf("%s\n", singleOutput);
+        strncat(singleOutput, tempString, strlen(tempString));
+        printf("%s\n", singleOutput);
+        printf("Size of string: %d\n", strlen(singleOutput));
+        //dataOutput[i] = singleOutput;
+        strncpy(dataOutput[i], singleOutput, strlen(singleOutput));
+        printf("%s", dataOutput[i]);
     }
+
+    free(singleOutput);
+    
+    return dataOutput;
+
 }
 
-void Display(char** pluggedSensors, float* tempArray)
-{
-    //int pluggedSensorAmount = sizeof(pluggedSensors)/sizeof(pluggedSensors[0]);
 
-    for (size_t i = 0; i < pluggedSensorsAmountGlobal; i++)
-    {
-        printf("%s: %.2f\n", pluggedSensors[i], tempArray[i]);
-    }
-}
 
 
 int main()
@@ -223,21 +246,20 @@ int main()
     float* tempArray;
     char** allSensors;
     char** pluggedSensors;
-
+    char** output;
     while (1)
     {    
         allSensors = GetAllSensorsName(dir, dirEntry);
-        // for (size_t i = 0; i < allSensorAmountGlobal; i++)
-        // {
-        //      printf("%s\n", allSensors[i]);
-        // }
         pluggedSensors = GetPluggedSensorsName(allSensors);
         free(allSensors);
-        // for (size_t i = 0; i < pluggedSensorsAmountGlobal; i++)
-        // {
-        //      printf("%s\n", pluggedSensors[i]);
-        // }
-        TempReader(pluggedSensors);    
+        output = TempReader(pluggedSensors);    
+        for (size_t i = 0; i < pluggedSensorsAmountGlobal; i++)
+        {
+            printf("%s\n", output[i]);
+        }
+                
+        
+        free(output);
         free(pluggedSensors);
 
         allSensorAmountGlobal = 0;
