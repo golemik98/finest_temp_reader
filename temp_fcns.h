@@ -16,3 +16,8 @@ struct dataStructure
     DIR* dir;
     struct dirent* dirEntry;
 };
+
+
+void error(const char * msg);
+void Temp_reader(DIR* dir, struct dirent* dirEntry);
+void handler_timer(union sigval arg);
