@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "header.h"
 
 #define MAIN_DIR_PATH "/sys/devices/w1_bus_master1/"
 #define TEMP_FILE "/w1_slave"
@@ -253,10 +252,10 @@ int main()
         pluggedSensors = GetPluggedSensorsName(allSensors);
         free(allSensors);
         output = TempReader(pluggedSensors);    
-        for (size_t i = 0; i < pluggedSensorsAmountGlobal; i++)
-        {
-            printf("%s\n", output[i]);
-        }
+        // for (size_t i = 0; i < pluggedSensorsAmountGlobal; i++)
+        // {
+        //     printf("%s\n", output[i]);
+        // }
                 
         
         free(output);
