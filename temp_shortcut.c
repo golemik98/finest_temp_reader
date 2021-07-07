@@ -2,6 +2,10 @@
 #include <dirent.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
+#include <signal.h>
+#include <pthread.h>
+#include <stdint.h>
 
 #define MAIN_DIR_PATH "/sys/devices/w1_bus_master1/"
 #define TEMP_FILE "/w1_slave"
@@ -79,14 +83,56 @@ void Temp_reader(DIR* dir, struct dirent* dirEntry)
 
 }
 
-int main(){
+struct dataStructure
+{
     DIR* dir;
     struct dirent* dirEntry;
+};
+
+
+void handler_timer(union sigval arg)
+{
+    long threadID;
+    threadID = pthread_self();
+    printf("Hello its %ld, just started my work\n", threadID);
+    puts("Working ...");
+    struct dataStructure *args;
+    args = arg.sival_ptr;
+
+    Temp_reader(args->dir, args->dirEntry);
+    puts("DONE!");
+}
+
+int main(){
+
+
+    struct dataStructure arguments;
+
+    timer_t timerid;
+    struct sigevent sev;
+
+    sev.sigev_notify = SIGEV_THREAD;
+    sev.sigev_notify_function = handler_timer;
+    sev.sigev_value.sival_ptr = &arguments; //one or another
+    sev.sigev_notify_attributes = NULL;
+
+    timer_create(CLOCK_REALTIME, &sev, &timerid);
+
+    printf("Timer created, timer ID is %#jx\n", (uintmax_t) timerid);
+//STARTING TIMER
+    struct itimerspec its; //timer specifications
+    its.it_value.tv_sec = 1;
+    its.it_value.tv_nsec = 0;
+
+    its.it_interval.tv_sec = 5;
+    its.it_interval.tv_nsec = 0;
+
+    timer_settime(timerid, 0, &its, NULL);
+
 
     while (1)
     {
-        Temp_reader(dir, dirEntry);
-        sleep(3);
+        continue;
     }
     
 
