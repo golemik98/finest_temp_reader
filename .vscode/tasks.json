@@ -10,12 +10,15 @@
             "args": [
                 "-g",
                 "${file}",
+                "temp_fcns.h",
+                "functions.c",
                 "-o",
                 "${fileDirname}/bin/${fileBasenameNoExtension}",
                 "-w",
                 "-lrt",
                 "-pthread",
-                "-lmosquitto"
+                "-lmosquitto",
+                "-std=gnu99"
             ],
             "options": {
                 "cwd": "${fileDirname}"
