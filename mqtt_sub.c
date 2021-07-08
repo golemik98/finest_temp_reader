@@ -23,11 +23,11 @@ int main() {
 
 	struct mosquitto *mosq;
 
-	mosq = mosquitto_new("subscribe-test", true, &id);
+	mosq = mosquitto_new("Data_reader", true, &id);
 	mosquitto_connect_callback_set(mosq, on_connect);
 	mosquitto_message_callback_set(mosq, on_message);
 	
-	rc = mosquitto_connect(mosq, "192.168.0.151", 1883, 10);
+	rc = mosquitto_connect(mosq, "192.168.1.153", 1883, 10);
 	if(rc) {
 		printf("Could not connect to Broker with return code %d\n", rc);
 		return -1;
