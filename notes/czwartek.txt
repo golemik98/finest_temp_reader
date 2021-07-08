@@ -1,3 +1,16 @@
 Trzeba dodać do programu:
     -opcję IPC, czyli napisać drugi program który będzie słuchał jak bounce i wyśweitlał wynik na konsoli.
     
+    
+Żeby broker działał trzeba:
+cd /etc/mosquitto && sudo vim mosquitto.conf
+
+Comment all other things, write:
+listener 1883
+allow_anonymous true
+
+if this is not enough than in bash:
+sudo ufw allow 1883
+sudo ufw enable 
+
+pgrep mosquitto (if running in a background than this will return pid, than kill it)
