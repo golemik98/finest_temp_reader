@@ -3,8 +3,20 @@
 
 int main(){
 
-
+    int sharedMemFd = shm_open(SHARED_MEM_NAME, O_RDWR, 0);
+    
+    if (sharedMemFd == -1)
+    {
+        error("Error in opening shared memory: ");
+    }
+    
     struct dataStructure arguments;
+
+
+    arguments.smb = MappingMemory(sharedMemFd, arguments.smb);
+
+    if (arguments.smb == MAP_FAILED)
+        error("Erro in mapping: ");
 
     timer_t timerid;
     struct sigevent sev;

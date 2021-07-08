@@ -8,7 +8,15 @@ void error(const char * msg)
 }
 
 
-void Temp_reader(DIR* dir, struct dirent* dirEntry)
+char* Timestamp()
+{
+    time_t ltime; /* calendar time */
+    ltime=time(NULL); /* get current cal time */
+    return asctime(localtime(&ltime));
+}
+
+
+void Temp_reader(DIR* dir, struct dirent* dirEntry, struct sharedMemoryBuffer* smb)
 {
     char* sensorName;
 
@@ -49,10 +57,31 @@ void Temp_reader(DIR* dir, struct dirent* dirEntry)
 
                 if (textCursor != NULL) //gives NULL if string is not founded
                 {
+                    char message[100];    
+                    memset(message, 0, sizeof(message));
+                    
+                    char* timeStampValue = Timestamp();
+                    strlen(timeStampValue);
+
+                    char temp[4];
                     textCursor += 2;
                     float temperature = atof(textCursor);
                     temperature = temperature / 1000;
-                    printf("%s : %.2f\n", sensorName, temperature);
+                    strncat(message, timeStampValue, strlen(timeStampValue) - 1);
+                    strncat(message, " : ", strlen(" : "));
+                    strncat(message, sensorName, strlen(sensorName));
+                    gcvt(temperature, 4, temp); //conv from float to string
+                    strncat(message, " : ", strlen(" : "));
+                    strncat(message, temp, strlen(temp));
+                    // printf("%s : %.2f\n", sensorName, temperature);
+                
+                    memcpy(smb->buffer, message, sizeof(message));
+                    
+                    if (sem_post(&smb->consumer) == -1)
+                        error("Error in sem producer posting: ");
+                   
+                    if (sem_wait(&smb->producer) == -1)
+                        error("Error in sem consumer posting: ");
                 }
                 else
                 {
@@ -65,6 +94,7 @@ void Temp_reader(DIR* dir, struct dirent* dirEntry)
                 close(fd);
             }
         }
+
     }
 
 
@@ -74,12 +104,50 @@ void Temp_reader(DIR* dir, struct dirent* dirEntry)
 void handler_timer(union sigval arg)
 {
     long threadID;
-    threadID = pthread_self();
-    printf("Hello its %ld, just started my work\n", threadID);
-    puts("Working ...");
+    // threadID = pthread_self();
+    // printf("Hello its %ld, just started my work\n", threadID);
+    // puts("Working ...");
     struct dataStructure *args;
     args = arg.sival_ptr;
+    
+    
+    Temp_reader(args->dir, args->dirEntry, args->smb);
+    
+    
+    // char pause[21];
+    // for (size_t i = 0; i < 20; i++)
+    // {
+    //     strncat(pause, "-", 1);    
+    // }
+    // strncat(pause, '\0', 1);
+    
+    // memcpy(args->smb->buffer, pause, sizeof(pause));
 
-    Temp_reader(args->dir, args->dirEntry);
-    puts("DONE!");
+
+    puts("Data send to receiver");
+}
+
+
+int CreateSizeSharedMem(char* shmName)
+{
+    int fd = 0;
+    fd = shm_open(shmName, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
+
+    if (fd == -1)
+        error("Error in shm_open:");
+
+    if ( ftruncate(fd, sizeof(struct sharedMemoryBuffer)) == -1)
+        error("Error in ftruncate:");
+
+    return fd;
+}
+
+void* MappingMemory(int fileDescriptor, struct sharedMemoryBuffer *smb)
+{
+    smb = mmap(NULL, sizeof(*smb), PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
+    
+    if (smb == MAP_FAILED)
+        error("Error in mapping memory:");
+
+    return smb;
 }
