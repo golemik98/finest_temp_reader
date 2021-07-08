@@ -3,17 +3,19 @@
 
 #include <mosquitto.h>
 
-void on_connect(struct mosquitto *mosq, void *obj, int rc) {
+void on_connect(struct mosquitto *mosq, void *obj, int rc) //this fcn is called after the clients con to the broker
+{
 	printf("ID: %d\n", * (int *) obj);
 	if(rc) {
 		printf("Error with result code: %d\n", rc);
 		exit(-1);
 	}
-	mosquitto_subscribe(mosq, NULL, "test/t1", 0);
+	mosquitto_subscribe(mosq, NULL, "dev/temp", 0);
 }
 
-void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
-	printf("New message with topic %s: %s\n", msg->topic, (char *) msg->payload);
+void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) //it is called when the message arrives from the broker
+{
+	printf("%s: %s\n", msg->topic, (char *) msg->payload);
 }
 
 int main() {
@@ -22,8 +24,8 @@ int main() {
 	mosquitto_lib_init();
 
 	struct mosquitto *mosq;
-
 	mosq = mosquitto_new("Data_reader", true, &id);
+	
 	mosquitto_connect_callback_set(mosq, on_connect);
 	mosquitto_message_callback_set(mosq, on_message);
 	
