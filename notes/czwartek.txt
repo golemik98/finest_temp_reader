@@ -1,0 +1,3 @@
+Trzeba dodać do programu:
+    -opcję IPC, czyli napisać drugi program który będzie słuchał jak bounce i wyśweitlał wynik na konsoli.
+    

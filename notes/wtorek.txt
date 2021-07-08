@@ -1,9 +1,0 @@
-Funkcja TempReader tworzy dwie tablice, jedna z nazwami druga z temperaturami. 
-Chce zeby te dane były przekazywane w każdej pętli do shared memory.
-
-
-Czyli: 
-    -TempReader powinien utowrzyć stringi z tych dwoch tablic,
-
-    Update: Nie udało mi się dzisiaj tego zrobić, przy kopiowaniu do tablicy output program się wywala <-- poćwiczyć malloc i stringi
-    
