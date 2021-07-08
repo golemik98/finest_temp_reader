@@ -43,13 +43,14 @@ int main()
             error("Error in consumer sem:");
         }
 
-        err = mosquitto_publish(mosq, NULL, "dev/temp", sizeof(smb->bufSize), smb->buffer, 0, false);
+        //printf("%s\n", smb->buffer);
+        err = mosquitto_publish(mosq, NULL, "dev/temp", strlen(smb->buffer), smb->buffer, 0, false);
 
         if (err != MOSQ_ERR_SUCCESS)
         {
             error("Error in publishing: ");
         }
-
+        puts("Data send to a broker");
         if (sem_post(&smb->producer) == -1)
         {
             error("Error in producer sem:");
