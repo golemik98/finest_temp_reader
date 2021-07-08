@@ -18,7 +18,7 @@ int main()
 
     int fd = shm_open(shmName, O_RDWR, 0);
     if (fd == -1)
-        ErrorReturned("Errir in opening existing shared memory:");
+        ErrorReturned("Error in opening existing shared memory:");
 
     struct sharedMemoryBuffer *smb;
     smb = MappingMemory(fd, smb);
