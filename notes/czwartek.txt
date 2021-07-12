@@ -14,3 +14,13 @@ sudo ufw allow 1883
 sudo ufw enable 
 
 pgrep mosquitto (if running in a background than this will return pid, than kill it)
+
+
+UPDATE Monday 12.07
+
+1. Subskrybent będzie napisany w Pythonie z wykorzystaniem paczko paho-mqtt.
+W VScode na laptopie trzeba pobrać konfigurację (alt+shift+d). Następnie stowrzyć wirtualne środowisko pythona .venv i tam zainstalować paczkę.
+
+2. Subskrybent musi móc czytać bufor który będzie wysyłany do brokera. Kiedy będzie to umiał to będę starał się wykorzystać request'a aby połaczyć się z systemem w firmie.
+
+
