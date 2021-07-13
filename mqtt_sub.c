@@ -23,13 +23,16 @@ int main() {
 
 	mosquitto_lib_init();
 
+
+	printf("Creating new mqtt client ...\n");
 	struct mosquitto *mosq;
 	mosq = mosquitto_new("Data_reader", true, &id);
 	
 	mosquitto_connect_callback_set(mosq, on_connect);
 	mosquitto_message_callback_set(mosq, on_message);
-	
-	rc = mosquitto_connect(mosq, "192.168.1.153", 1883, 10);
+
+	printf("Connecting to the broker ...\n");	
+	rc = mosquitto_connect(mosq, "localhost", 1883, 10);
 	if(rc) {
 		printf("Could not connect to Broker with return code %d\n", rc);
 		return -1;
